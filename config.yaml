@@ -1,0 +1,105 @@
+camera:
+  device_id: "/dev/video1"  # Primary camera device, auto-detected if unavailable
+  width: 640
+  height: 360
+  fps: 30
+
+general:
+  timezone: 'Asia/Singapore'
+
+yolo:
+  model_type: "onnx"  # Options: "onnx" or "rknn"
+  onnx_model_path: "models/best.onnx"
+  rknn_model_path: "models/yolov8n.rknn"
+  confidence_threshold: 0.7
+  imgsz: 320  # Reduced for performance
+  iou_threshold: 0.45
+  send_images: true
+  allow_detections_without_gps: true
+  class_names:
+    - Green Light
+    - Red Light
+    - Speed Limit 10
+    - Speed Limit 100
+    - Speed Limit 110
+    - Speed Limit 120
+    - Speed Limit 20
+    - Speed Limit 30
+    - Speed Limit 40
+    - Speed Limit 50
+    - Speed Limit 60
+    - Speed Limit 70
+    - Speed Limit 80
+    - Speed Limit 90
+    - Stop
+  intra_op_num_threads: 2  # Reduced for CPU efficiency
+  draw_boxes: true
+
+gps:
+  port: "/dev/ttyUSB1"
+  baudrate: 115200
+  timeout: 1
+  power_delay: 2
+  agps_delay: 5
+
+imu:
+  i2c_bus: 4
+  i2c_addresses: ["0x68", "0x69"]
+  sample_rate: 100
+  accel_range: 2
+  gyro_range: 250
+
+sim:
+  port: "/dev/ttyUSB2"
+  baudrate: 115200
+  ussd_balance_code: "*221#"
+  check_interval: 60  # Reduced to 1 minute for real-time monitoring
+  usage_post_interval: 30
+  apn: "internet"
+  dial_command: "ATD*99#"
+  ppp_retry_interval: 300
+  interfaces: ["ppp0", "wwan0"]
+  modem_init_commands:
+    - "AT+CFUN=1"
+    - "AT+CGATT=1"
+    - "AT+CREG=1"
+  initialization_retries: 3
+  connection_recovery: true
+  ppp_setup:
+    auto_connect: true
+    connection_script: "/usr/local/bin/lte-connect"
+    chat_script: "/etc/ppp/chat-lte"
+
+backend:
+  url: "https://vehicle-tracking-backend-bwmz.onrender.com"
+  endpoint_prefix: "/api"
+  telemetry_endpoint: "/telemetry"  # New endpoint for batched telemetry
+  detection_endpoint: "/detections"
+  sim_data_endpoint: "/sim-data"
+  database_url: "postgresql://vehicle_tracking_db_user:2UCucmSeeSIjr4fuYrqtR6P1ZFXoLMg8@dpg-d0c8v33uibrs73duilrg-a/vehicle_tracking_db"
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "vehicle_tracker.log"
+  offline_file: "offline_data.json"
+  interval:
+    gps: 1
+    imu: 0.05
+    camera: 0.5  # 2fps to reduce load
+
+network:
+  interface: ["ppp0", "wlan0"]
+  retries: 3
+  ping_test_host: "8.8.8.8"
+
+api:
+  port: 5000
+
+test_server:
+  host: "0.0.0.0"
+  port: 8081
+
+detection:
+  deduplication_timeout: 10
+  distance_threshold: 0.001
