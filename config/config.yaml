@@ -3,6 +3,10 @@ camera:
   width: 640
   height: 360
   fps: 30
+  jpeg_quality: 75
+  offline_jpeg_quality: 30
+  reinit_interval_s: 30
+  internal_frame_queue_size: 2
 
 general:
   timezone: 'Asia/Singapore'
@@ -77,6 +81,8 @@ backend:
   detection_endpoint: "/detections"
   sim_data_endpoint: "/sim-data"
   database_url: "postgresql://vehicle_tracking_db_user:2UCucmSeeSIjr4fuYrqtR6P1ZFXoLMg8@dpg-d0c8v33uibrs73duilrg-a/vehicle_tracking_db"
+  batch_size: 10
+  batch_time_s: 5.0
 
 logging:
   level: "INFO"
@@ -84,14 +90,16 @@ logging:
   file: "vehicle_tracker.log"
   offline_file: "offline_data.json"
   interval:
-    gps: 1
+    gps: 1.0
     imu: 0.05
-    camera: 0.5  # 2fps to reduce load
+    camera: 0.5
 
 network:
   interface: ["ppp0", "wlan0"]
   retries: 3
   ping_test_host: "8.8.8.8"
+  ping_test_port: 53
+  ping_timeout_s: 3
 
 api:
   port: 5000
@@ -103,3 +111,22 @@ test_server:
 detection:
   deduplication_timeout: 10
   distance_threshold: 0.001
+
+stationary_detection:
+  speed_threshold_kmh: 5
+  imu_accel_threshold_g: 0.05
+  imu_speed_threshold_ms: 0.1
+
+low_speed_intervals:
+  camera: 1.0
+  gps: 2.0
+
+high_cpu_intervals:
+  camera: 2.0
+
+app_settings:
+  speed_staleness_s: 30
+  speed_alpha: 0.8
+  speed_alpha_min_satellites: 4
+  speed_alpha_low_sat_value: 0.5
+  process_monitor_interval_s: 10
